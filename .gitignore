@@ -1,0 +1,8 @@
+# The vendor's app and its decompiled source are their copyrighted work: keep them local, never publish.
+*.apk
+*.zip
+decompiled/
+
+.DS_Store
+
+.venv/
