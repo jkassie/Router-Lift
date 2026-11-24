@@ -1,7 +1,7 @@
 # MLCS PowerLift Pro — serial protocol
 
 Recovered by decompiling `powerliftpro-3.0.1.apk` (package `com.powerlift`).
-Connecting, position and firmware replies, jog (`R:`) and stop (`O`) are confirmed on a real lift (firmware 2.0.0). The rest is read from the app's code only.
+Confirmed on a real lift (firmware 2.0.0): connecting, `W`, `V`, `SS`, `P`, `O`, `Z`, `S:`, `R:`, `X:`, `A:`, `T:`, `E:` and the `^SS`, `^L`, `^V` replies. The rest is read from the app's code only. See [Observed behaviour](#observed-behaviour-firmware-200) for what testing showed.
 
 ## Transport
 
@@ -43,6 +43,7 @@ Lines start with `^`.
 | `^MB<6 chars>` | A memory-bank position was reached (steps) |
 | `^V<text>` | Firmware version |
 | `^E<3 digits>` | Error. `^E099` = no power to the motor |
+| `MOTORWAKE` | Reply to `W` (no `^` prefix; not handled by the vendor app) |
 
 ## App-side behaviour worth copying
 
@@ -53,3 +54,18 @@ Lines start with `^`.
   current position shifted by the backlash value against the new direction, waits 50 ms, then sends the move
   (for `A:` it also adds the backlash value to the step count).
 - Presets, named memory groups and sequences are stored on the phone, not the lift (only `M:` positions are pushed).
+
+## Observed behaviour (firmware 2.0.0)
+
+Measured on one lift with the app's message log.
+
+- **Moves are reported unprompted.** Any move, including one from the foot pedal, sends `^SS` at start and stop and a `^L` position about every 60 steps while moving.
+- **The lift counts on its own.** Pedal moves made with no phone connected are included in the position it reports on the next connect.
+- **Position is lost at power-off.** After a power cycle the lift reports `^L000000`. `E:<steps>` restores a remembered value.
+- **Limits.** The lift stops itself at either limit and sets the limit flag. Travel between limits measured 5797 steps (about 3.40 in). Reaching a limit does not reset the count. Repeated approaches to the upper limit tripped within a 6-step spread.
+- **Moves do not need the link.** `X:` keeps running to the limit after the phone disconnects. `R:` (jog) also keeps running if the link drops before `O` is sent. Nothing in the lift acts as a dead-man switch.
+- **Speed.** Measured about 60 steps per second at `S:30`, 205 at `S:89`, 216 at `S:90` and 225 at `S:130`. The foot pedal runs at about 200.
+- **Scale.** A 426-step move measured 0.2495 in on a dial indicator, about 1707 steps per inch.
+- **Backlash.** After a change of direction the first 0.010 to 0.015 in of commanded travel does not move the carriage. From the same direction a position repeats within about 0.002 in.
+- **The count drifts.** The upper limit switch trips at the same physical height within 0.0015 in, but the count the lift reports there rises with use: about 1 step per down-and-up cycle at `S:30` and 2 to 3 at `S:90`. Over one session it moved about 60 steps (0.035 in). The limit switch is therefore a better reference than the count.
+- **The lower limit is a repeatable reference.** Running to the lower limit and then moving up 3 in (`A:5115`) landed within 0.001 in on a dial indicator over five tries, while the reported count shifted by about 5 steps over the same tries.

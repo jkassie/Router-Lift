@@ -1,5 +1,6 @@
 package com.routerlift.control.lift
 
+import kotlin.math.abs
 import kotlin.math.roundToLong
 
 /**
@@ -94,7 +95,9 @@ object LiftUnits {
 
     fun toSteps(value: Double, inches: Boolean, stepsPerInch: Float): Long {
         val asInches = if (inches) value else value / MM_PER_INCH
-        return (asInches * stepsPerInch).roundToLong()
+        // Round half away from zero so +x and -x give the same number of steps.
+        val steps = abs(asInches * stepsPerInch).roundToLong()
+        return if (asInches < 0) -steps else steps
     }
 
     fun fromSteps(steps: Long, inches: Boolean, stepsPerInch: Float): Double {

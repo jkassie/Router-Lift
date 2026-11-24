@@ -41,7 +41,37 @@ class LiftProtocolTest {
     fun units() {
         assertEquals(1705L, LiftUnits.toSteps(1.0, inches = true, stepsPerInch = 1705f))
         assertEquals(1705L, LiftUnits.toSteps(25.4, inches = false, stepsPerInch = 1705f))
+        assertEquals(171L, LiftUnits.toSteps(0.1, inches = true, stepsPerInch = 1705f))
+        assertEquals(-171L, LiftUnits.toSteps(-0.1, inches = true, stepsPerInch = 1705f))
         assertEquals("0.500", LiftUnits.format(853, inches = true, stepsPerInch = 1706f))
         assertEquals("25.40", LiftUnits.format(1705, inches = false, stepsPerInch = 1705f))
+    }
+}
+
+class PresetsTest {
+    @Test
+    fun inchLabelsUseFractionsForSixtyFourths() {
+        assertEquals("1/64 in", Presets.label(1.0 / 64, inches = true))
+        assertEquals("1/16 in", Presets.label(0.0625, inches = true))
+        assertEquals("3/32 in", Presets.label(3.0 / 32, inches = true))
+        assertEquals("1/2 in", Presets.label(0.5, inches = true))
+        assertEquals("0.005 in", Presets.label(0.005, inches = true))
+        assertEquals("0.001 in", Presets.label(0.001, inches = true))
+        assertEquals("1 in", Presets.label(1.0, inches = true))
+        assertEquals("1.25 in", Presets.label(1.25, inches = true))
+    }
+
+    @Test
+    fun millimetreLabelsAreDecimal() {
+        assertEquals("0.25 mm", Presets.label(0.25, inches = false))
+        assertEquals("10 mm", Presets.label(10.0, inches = false))
+    }
+
+    @Test
+    fun presetsRoundTripThroughStorage() {
+        assertEquals(Presets.DEFAULT_INCHES, Presets.decode(Presets.encode(Presets.DEFAULT_INCHES)))
+        assertEquals(emptyList<Double>(), Presets.decode(""))
+        assertEquals(null, Presets.decode(null))
+        assertEquals(listOf(0.5), Presets.decode("0.5,-1,abc"))
     }
 }

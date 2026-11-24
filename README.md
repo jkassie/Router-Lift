@@ -12,7 +12,7 @@ This software moves a motor next to a spinning cutter.
 
 - Use it at your own risk. It comes with no warranty (see [LICENSE](LICENSE)).
 - Keep the lift's foot pedal and power switch within reach whenever the app is connected.
-- It is not known whether the lift stops by itself if the Bluetooth link drops mid-move. Do not rely on the app as the only way to stop it.
+- **The lift does not stop if the Bluetooth link drops mid-move.** Tested: a move in progress, including a held jog, carries on until a limit switch. Never rely on the app as the only way to stop it.
 - Never adjust height with your hands near the bit.
 
 ## Status
@@ -24,8 +24,12 @@ Early, but working on real hardware (Pixel 11, Android 17, lift firmware 2.0.0).
 | Connect to a paired lift | Tested |
 | Live height readout, inches or millimetres | Tested |
 | Hold-to-jog up / down, stop | Tested |
-| Go to height, move by amount, run to max up / down, set zero, speed | Implemented, not yet tested on the lift |
-| Presets, memory positions, sequences | Not implemented yet |
+| Go to height, move by amount, run to max up / down, set zero, speed | Tested |
+| Restore height after a power cycle | Tested |
+| Nudge by a preset amount (editable list, inches or millimetres) | Implemented, not yet tested on the lift |
+| Saved positions, with go at slider speed or full speed | Implemented, not yet tested on the lift |
+| Undo for "set zero" | Implemented, not yet tested on the lift |
+| Sequences | Not implemented yet |
 | Calibration (steps per inch) and anti-backlash | Not implemented yet |
 
 ## Using it
@@ -36,7 +40,7 @@ Requires Android 8.0 or newer. iPhones cannot be supported: the lift uses Blueto
 2. Power the lift on and pair it in Android's Bluetooth settings. It appears as `MLCS-PowerLift-Pro`.
 3. Open Router Lift, tap **Connect**, and allow the "Nearby devices" permission.
 
-The lift does not remember its height when powered off. Like the original app, this one saves the last height on the phone and sends it back to the lift on connect.
+The app saves the last height on the phone. If the lift reports exactly 0 on connect while the phone remembers a different height, the app assumes the lift was power-cycled and sends the remembered height back; otherwise the lift's own reading is used.
 
 ## Building
 
